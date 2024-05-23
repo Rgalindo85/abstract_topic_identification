@@ -1,2 +1,6 @@
 # ignore elements inside data directory
 /data/*
+
+# ignore all virtual environments
+/.venv/*
+/VENV/*
