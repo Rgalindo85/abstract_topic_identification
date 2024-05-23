@@ -10,3 +10,4 @@
 
 # ignore all outputs directories
 /outputs/*
+/data
