@@ -32,7 +32,10 @@ def main(config: DictConfig):
     # save data
 
 def preprocess_data(data: dict) -> dict:
-    pass
+    
+    for key in data.keys():
+        data[key] = preprocess_text(data[key])
+    return data
 
 def preprocess_text(text: str) -> str:
     # Remove non-alphabetic characters and tokenize
