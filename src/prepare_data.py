@@ -1,0 +1,101 @@
+import os
+import glob
+import logging
+import hydra
+import xml.etree.ElementTree as ET
+import nltk
+import re
+
+from omegaconf import DictConfig, OmegaConf
+from tqdm import tqdm
+from pathlib import Path
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+
+nltk.download('stopwords')
+nltk.download('punkt')
+nltk.download('wordnet')
+
+DIR_PATH = Path(__file__).resolve().parents[1]
+
+
+@hydra.main(config_path="../config", config_name="main.yaml", version_base=None)
+def main(config: DictConfig):
+    logger = logging.getLogger('main')
+
+    dict_data = get_data(config)
+    # logger.info(f"Data: {dict_data}")
+
+    # preprcess data
+
+    # save data
+
+def preprocess_data(data: dict) -> dict:
+    pass
+
+def preprocess_text(text: str) -> str:
+    # Remove non-alphabetic characters and tokenize
+    tokens = word_tokenize(re.sub(r'[^a-zA-Z]', ' ', text.lower()))
+    # Remove stopwords and lemmatize
+    lemmatizer = WordNetLemmatizer()
+    processed = [lemmatizer.lemmatize(word) for word in tokens if word not in stopwords.words('english')]
+    return ' '.join(processed)
+
+
+def get_data(config: DictConfig) -> dict:
+    """Get data from xml files
+
+    Args:
+        config (DictConfig): configuration file
+
+    Returns:
+        dict: dictionary with paper id as key and abstract as value
+    """
+    logger = logging.getLogger('get_data')
+
+    # Get list of files
+    data_path = os.path.join(DIR_PATH, config.data.raw.path, '*.xml')
+    list_of_files = glob.glob(data_path)
+
+    logger.info(f"Found {len(list_of_files)} files")
+    
+    # Get abstracts
+    dict_data = {}
+    for file in tqdm(list_of_files):
+        try:
+            abstract = get_abstract(file)
+            paper = file.split('/')[-1].split('.')[0]
+            dict_data[paper] = abstract
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            continue
+
+    return dict_data
+
+
+def get_abstract(filename):
+    """Read file and extract abstract
+
+    Args:
+        filename (str): filepath to the xml file
+
+    Returns:
+        _type_: _description_
+    """
+    xml_files = open(filename, 'r').read()
+
+    root = ET.fromstring(xml_files)
+
+    # Iterate through elements
+    abstract = ''
+    for child in root:
+        for subchild in child:
+            if 'abstract' in str(subchild.tag).lower():
+                abstract = subchild.text
+    return abstract
+    
+
+
+if __name__ == "__main__":
+    main()
