@@ -24,16 +24,30 @@ DIR_PATH = Path(__file__).resolve().parents[1]
 def main(config: DictConfig):
     logger = logging.getLogger('main')
 
+    logger.info("Get abtract from xml files")
     dict_data = get_data(config)
-    # logger.info(f"Data: {dict_data}")
 
-    # preprcess data
+    logger.info("Preprocess data")
+    dict_data = preprocess_data(dict_data)
 
-    # save data
+    # save dict_data as yaml
+    save_path = os.path.join(DIR_PATH, config.data.processed.path)
+    os.makedirs(save_path, exist_ok=True)
+    save_file = os.path.join(save_path, 'data.json')
+
+    logger.info(f"Save data to {save_file}")    
+    with open(save_file, 'w') as f:
+        f.write(OmegaConf.to_yaml(dict_data))
+    
+    logger.info("Done!")
+
 
 def preprocess_data(data: dict) -> dict:
     
-    for key in data.keys():
+    for key in tqdm(data.keys()):
+        text = data[key]
+        if len(text) == 0:
+            continue
         data[key] = preprocess_text(data[key])
     return data
 
@@ -65,7 +79,7 @@ def get_data(config: DictConfig) -> dict:
     
     # Get abstracts
     dict_data = {}
-    for file in tqdm(list_of_files):
+    for file in tqdm(list_of_files[:100]):
         try:
             abstract = get_abstract(file)
             paper = file.split('/')[-1].split('.')[0]
