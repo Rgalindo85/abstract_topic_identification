@@ -1,13 +1,13 @@
 import os
 import hydra
 
-
 from omegaconf import DictConfig, OmegaConf
 from pathlib import Path
 
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import LatentDirichletAllocation 
-
+from sklearn.decomposition import LatentDirichletAllocation
+from sklearn.cluster import DBSCAN
+from sklearn.decomposition import TruncatedSVD
 
 DIR_PATH = Path(__file__).resolve().parents[1]
 
@@ -19,19 +19,43 @@ def main(config: DictConfig):
     filename = os.path.join(DIR_PATH, config.data.processed.path, 'data.json')
     print(f"Load data from {filename}")
 
-    # use omegaconf to load yaml file
+    # use omegaconf to load file
     dict_data = OmegaConf.load(filename)
 
-
+    # vectorization
     vectorizer, tfidf_matrix = vectorization(dict_data)
+    svd = TruncatedSVD(n_components=10, random_state=42)
+    svd.fit_transform(tfidf_matrix)
 
-    n_topics = 20
-    lda = LatentDirichletAllocation(n_components=n_topics, random_state=42)
+    feature_scores = dict(zip(vectorizer.get_feature_names_out(), svd.components_[0]))
+
+    topic_out = sorted(
+        feature_scores.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )[:10]
+
+    print(topic_out)
+
+
+    # DBSCAN
+    dbscan = DBSCAN(eps=0.1, min_samples=5)
+    dbscan.fit(tfidf_matrix)
+
+    labels = dbscan.labels_
+    #print(labels)    
+
+    # LDA
+    n_topics = 10
+    lda = LatentDirichletAllocation(n_components=n_topics, random_state=42, learning_method='online', n_jobs=-1)
     lda.fit(tfidf_matrix)
 
+    # display topics
     tfidf_feature_names = vectorizer.get_feature_names_out()
     display_topics(lda, tfidf_feature_names, 10)
 
+    # evaluate model
+        
 
 def display_topics(model, feature_names, no_top_words):
     for topic_idx, topic in enumerate(model.components_):

@@ -44,14 +44,21 @@ def main(config: DictConfig):
 
 def preprocess_data(data: dict) -> dict:
     
+    dict_processed = {}
     for key in tqdm(data.keys()):
         text = data[key]
+        if text is None or text == '':
+            continue
         if len(text) == 0:
             continue
-        data[key] = preprocess_text(data[key])
-    return data
+        dict_processed[key] = preprocess_text(data[key])
+    return dict_processed
 
 def preprocess_text(text: str) -> str:
+    # Remove special characters typically found in xml files
+
+    text = re.sub(r'&lt;', '<', text)
+
     # Remove non-alphabetic characters and tokenize
     tokens = word_tokenize(re.sub(r'[^a-zA-Z]', ' ', text.lower()))
     # Remove stopwords and lemmatize
@@ -79,7 +86,7 @@ def get_data(config: DictConfig) -> dict:
     
     # Get abstracts
     dict_data = {}
-    for file in tqdm(list_of_files[:100]):
+    for file in tqdm(list_of_files[:1000]):
         try:
             abstract = get_abstract(file)
             paper = file.split('/')[-1].split('.')[0]
