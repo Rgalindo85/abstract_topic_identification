@@ -9,12 +9,12 @@ stages:
       - data/processed:
           persist: true
   train_model:
-    cmd: python src/train_model.py
+    cmd: python src/train.py
     deps:
       - data/processed
-      - data/input_model
+      # - data/input_model
       - config/main.yaml
-      - src/train_model.py
+      - src/train.py
     # outs:
     #   - data/output_model:
     #      persist: true
