@@ -1,6 +1,7 @@
 import os
 import hydra
 import numpy as np
+import matplotlib.pyplot as plt
 
 import pyLDAvis
 
@@ -29,37 +30,121 @@ def main(config: DictConfig):
 
     # vectorization
     vectorizer, tfidf_matrix = vectorization(dict_data)
-    svd = TruncatedSVD(n_components=4, random_state=42)
-    svd_matrix = svd.fit_transform(tfidf_matrix)
+    
+    # dim reduction visualization
+    X_tsne = show_dim_reduction(tfidf_matrix, vectorizer, method='tnse')
+    X_pca = show_dim_reduction(tfidf_matrix, vectorizer, method='pca')
+    X_umap = show_dim_reduction(tfidf_matrix, vectorizer, method='umap')
 
-    print("\nTopics from TruncatedSVD:")
-    terms = vectorizer.get_feature_names_out()
-    for i, component in enumerate(svd.components_):
-        top_terms_indices = component.argsort()[:-11:-1]
-        top_terms = [terms[index] for index in top_terms_indices]
-        print(f"Topic {i+1}: {', '.join(top_terms)}")
-        
-    # LDA
-    n_topics = 6
-    lda = LatentDirichletAllocation(n_components=n_topics, random_state=42, learning_method='online', n_jobs=-1)
-    lda.fit(tfidf_matrix)
+    # Apply Hierarchical Clustering - HDBSCAN
+    apply_hierarchical_clustering(X_tsne, method='hdbscan')
+    apply_hierarchical_clustering(X_pca, method='hdbscan')
+    apply_hierarchical_clustering(X_umap, method='hdbscan')
+
+
+    model_lda = find_topics(tfidf_matrix, algo='LDA', n_topics=10)
+    model_svd = find_topics(tfidf_matrix, algo='SVD', n_topics=10)
 
     # display topics
     tfidf_feature_names = vectorizer.get_feature_names_out()
-    display_topics(lda, tfidf_feature_names, 10)
+    print("\nTopics from LDA:")
+    display_topics(model_lda, tfidf_feature_names, 10)
+    print("\nTopics from TruncatedSVD:")
+    display_topics(model_svd, tfidf_feature_names, 10)
+
+    # evaluate model
+
+    
 
     # evaluate model
     # pyLDAvis.enable_notebook()
-    panel = pyLDAvis.lda_model.prepare(lda, tfidf_matrix, vectorizer, mds='tsne')
-    pyLDAvis.save_html(panel, os.path.join('reports', 'HTML','lda.html'))
+    # panel = pyLDAvis.lda_model.prepare(lda, tfidf_matrix, vectorizer, mds='tsne')
+    # pyLDAvis.save_html(panel, os.path.join('reports', 'HTML','lda.html'))
     # pyLDAvis.display(panel)
-        
+
+def apply_hierarchical_clustering(X, method='hdbscan'):
+
+    if method == 'hdbscan':
+        import hdbscan
+        clusterer = hdbscan.HDBSCAN(min_cluster_size=10, gen_min_span_tree=True)
+        clusterer.fit(X)
+        plt.scatter(X[:, 0], X[:, 1], c=clusterer.labels_, cmap='viridis', alpha=0.3)
+        plt.show()
+
+    elif method == 'dbscan':
+        from sklearn.cluster import DBSCAN
+        clusterer = DBSCAN(eps=0.3, min_samples=10)
+        clusterer.fit(X)
+        plt.scatter(X[:, 0], X[:, 1], c=clusterer.labels_, cmap='viridis', alpha=0.3)
+        plt.show()
+    else:
+        raise ValueError(f"Method {method} not supported")
+
+
+def show_dim_reduction(tfidf_matrix, vectorizer, method='tnse'):
+    if method == 'tnse':
+        from sklearn.manifold import TSNE
+        tsne = TSNE(n_components=2, random_state=42, perplexity=50, n_iter=300, n_jobs=-1)
+        X_tsne = tsne.fit_transform(tfidf_matrix.toarray())
+
+        plt.scatter(X_tsne[:, 0], X_tsne[:, 1], alpha=0.3)
+        plt.show()
+
+        return X_tsne
+
+    elif method == 'pca':
+        from sklearn.decomposition import PCA
+        pca = PCA(n_components=0.95, random_state=42)
+        X_pca = pca.fit_transform(tfidf_matrix.toarray())
+
+        plt.scatter(X_pca[:, 0], X_pca[:, 1], alpha=0.3)
+        plt.show()
+
+        return X_pca
+    elif method == 'umap':
+        import umap
+        reducer = umap.UMAP()
+        embedding = reducer.fit_transform(tfidf_matrix.toarray())
+        plt.scatter(embedding[:, 0], embedding[:, 1], alpha=0.3)
+        plt.show()
+
+        return embedding
+
+    else:
+        raise ValueError(f"Method {method} not supported")
+
+
+def find_topics(tfidf_matrix, algo='LDA', n_topics=3):
+    if algo == 'LDA':
+        model = LatentDirichletAllocation(n_components=n_topics, random_state=42, learning_method='online', n_jobs=-1)
+        model.fit(tfidf_matrix)
+
+        # plot components
+        print(model.exp_dirichlet_component_)
+        print(model.components_.shape)
+        plt.scatter(model.components_[0], model.components_[1])
+        plt.show()
+
+    elif algo == 'SVD':
+        model = TruncatedSVD(n_components=n_topics, random_state=42)
+        model.fit(tfidf_matrix)
+
+        # plot components
+        print(model.explained_variance_ratio_)
+        print(model.components_.shape)
+        plt.scatter(model.components_[0], model.components_[1])
+        plt.show()
+    else:
+        raise ValueError(f"Algorithm {algo} not supported")
+
+    model.fit(tfidf_matrix)
+    return model
+
 
 def display_topics(model, feature_names, no_top_words):
     for topic_idx, topic in enumerate(model.components_):
         print(f"Topic {topic_idx}:")
         print(" ".join([feature_names[i] for i in topic.argsort()[:-no_top_words - 1:-1]]))
-
 
 
 def vectorization(dict_data):
