@@ -1,5 +1,6 @@
 # ignore elements inside data directory
-/data/*
+data/*
+!data/raw.dvc
 
 # ignore all virtual environments
 /.venv/*
@@ -10,4 +11,3 @@
 
 # ignore all outputs directories
 /outputs/*
-/data
