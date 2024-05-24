@@ -1,9 +1,14 @@
 import os
 import hydra
+import numpy as np
+
+import pyLDAvis
+
 
 from omegaconf import DictConfig, OmegaConf
 from pathlib import Path
 
+import pyLDAvis.lda_model
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.cluster import DBSCAN
@@ -24,29 +29,18 @@ def main(config: DictConfig):
 
     # vectorization
     vectorizer, tfidf_matrix = vectorization(dict_data)
-    svd = TruncatedSVD(n_components=10, random_state=42)
-    svd.fit_transform(tfidf_matrix)
+    svd = TruncatedSVD(n_components=4, random_state=42)
+    svd_matrix = svd.fit_transform(tfidf_matrix)
 
-    feature_scores = dict(zip(vectorizer.get_feature_names_out(), svd.components_[0]))
-
-    topic_out = sorted(
-        feature_scores.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )[:10]
-
-    print(topic_out)
-
-
-    # DBSCAN
-    dbscan = DBSCAN(eps=0.1, min_samples=5)
-    dbscan.fit(tfidf_matrix)
-
-    labels = dbscan.labels_
-    #print(labels)    
-
+    print("\nTopics from TruncatedSVD:")
+    terms = vectorizer.get_feature_names_out()
+    for i, component in enumerate(svd.components_):
+        top_terms_indices = component.argsort()[:-11:-1]
+        top_terms = [terms[index] for index in top_terms_indices]
+        print(f"Topic {i+1}: {', '.join(top_terms)}")
+        
     # LDA
-    n_topics = 10
+    n_topics = 6
     lda = LatentDirichletAllocation(n_components=n_topics, random_state=42, learning_method='online', n_jobs=-1)
     lda.fit(tfidf_matrix)
 
@@ -55,6 +49,10 @@ def main(config: DictConfig):
     display_topics(lda, tfidf_feature_names, 10)
 
     # evaluate model
+    # pyLDAvis.enable_notebook()
+    panel = pyLDAvis.lda_model.prepare(lda, tfidf_matrix, vectorizer, mds='tsne')
+    pyLDAvis.save_html(panel, os.path.join('reports', 'HTML','lda.html'))
+    # pyLDAvis.display(panel)
         
 
 def display_topics(model, feature_names, no_top_words):

@@ -18,6 +18,8 @@ nltk.download('punkt')
 nltk.download('wordnet')
 
 DIR_PATH = Path(__file__).resolve().parents[1]
+# include into stopwords characteres that are typically found in xml files
+stopwords = set(stopwords.words('english') + ['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}'] + ['lt', 'br', 'gt'])
 
 
 @hydra.main(config_path="../config", config_name="main.yaml", version_base=None)
@@ -63,7 +65,7 @@ def preprocess_text(text: str) -> str:
     tokens = word_tokenize(re.sub(r'[^a-zA-Z]', ' ', text.lower()))
     # Remove stopwords and lemmatize
     lemmatizer = WordNetLemmatizer()
-    processed = [lemmatizer.lemmatize(word) for word in tokens if word not in stopwords.words('english')]
+    processed = [lemmatizer.lemmatize(word) for word in tokens if word not in stopwords]
     return ' '.join(processed)
 
 
