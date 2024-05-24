@@ -37,9 +37,13 @@ def main(config: DictConfig):
     X_umap = show_dim_reduction(tfidf_matrix, vectorizer, method='umap')
 
     # Apply Hierarchical Clustering - HDBSCAN
-    apply_hierarchical_clustering(X_tsne, method='hdbscan')
-    apply_hierarchical_clustering(X_pca, method='hdbscan')
-    apply_hierarchical_clustering(X_umap, method='hdbscan')
+    clus_tsne = apply_hierarchical_clustering(X_tsne, method='hdbscan')
+    clus_pca = apply_hierarchical_clustering(X_pca, method='hdbscan')
+    clus_umap = apply_hierarchical_clustering(X_umap, method='hdbscan')
+
+    print('TSNE + HDSCAN clusters: ', np.unique(clus_tsne.labels_, return_counts=True))
+    print('PCA + HDSCAN clusters: ', np.unique(clus_pca.labels_, return_counts=True))
+    print('UMAP + HDSCAN clusters: ', np.unique(clus_umap.labels_, return_counts=True))
 
 
     model_lda = find_topics(tfidf_matrix, algo='LDA', n_topics=10)
@@ -69,14 +73,18 @@ def apply_hierarchical_clustering(X, method='hdbscan'):
         clusterer = hdbscan.HDBSCAN(min_cluster_size=10, gen_min_span_tree=True)
         clusterer.fit(X)
         plt.scatter(X[:, 0], X[:, 1], c=clusterer.labels_, cmap='viridis', alpha=0.3)
+        plt.legend()
         plt.show()
 
+        return clusterer
     elif method == 'dbscan':
         from sklearn.cluster import DBSCAN
         clusterer = DBSCAN(eps=0.3, min_samples=10)
         clusterer.fit(X)
         plt.scatter(X[:, 0], X[:, 1], c=clusterer.labels_, cmap='viridis', alpha=0.3)
         plt.show()
+
+        return clusterer
     else:
         raise ValueError(f"Method {method} not supported")
 
