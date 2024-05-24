@@ -1,10 +1,10 @@
 stages:
   process_data:
-    cmd: python src/process_data.py
+    cmd: python src/prepare_data.py
     deps:
       - data/raw
       - config/main.yaml
-      - src/process_data.py
+      - src/prepare_data.py
     outs:
       - data/processed:
           persist: true

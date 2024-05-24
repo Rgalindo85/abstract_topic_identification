@@ -1,0 +1,24 @@
+schema: '2.0'
+stages:
+  process_data:
+    cmd: python src/prepare_data.py
+    deps:
+    - path: config/main.yaml
+      hash: md5
+      md5: 73662c9eabfc44d397de5fade937eb35
+      size: 114
+    - path: data/raw
+      hash: md5
+      md5: 97165a601381d1aac13bd7c25fc369ba.dir
+      size: 121881813
+      nfiles: 13300
+    - path: src/prepare_data.py
+      hash: md5
+      md5: 4170fcfed2cda381ee615219730b9eec
+      size: 3023
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: a7f546049187ebb0bfd7005537d19806.dir
+      size: 231518
+      nfiles: 1
