@@ -1,0 +1,9 @@
+data:
+  raw:
+    path: data/raw
+
+  processed:
+    path: data/processed
+
+  input_model:
+    path: data/input_model

@@ -1,0 +1,13 @@
+# ignore elements inside data directory
+data/*
+!data/raw.dvc
+
+# ignore all virtual environments
+/.venv/*
+/VENV/*
+
+# ignore jupyter notebooks checkpoints and outputs
+*.ipynb_checkpoints/*
+
+# ignore all outputs directories
+/outputs/*
