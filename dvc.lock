@@ -22,3 +22,19 @@ stages:
       md5: a7f546049187ebb0bfd7005537d19806.dir
       size: 231518
       nfiles: 1
+  train_model:
+    cmd: python src/train.py
+    deps:
+    - path: config/main.yaml
+      hash: md5
+      md5: 73662c9eabfc44d397de5fade937eb35
+      size: 114
+    - path: data/processed
+      hash: md5
+      md5: a7f546049187ebb0bfd7005537d19806.dir
+      size: 231518
+      nfiles: 1
+    - path: src/train.py
+      hash: md5
+      md5: 07e0c63da215d14853ba5aedc09c6f1a
+      size: 1383
