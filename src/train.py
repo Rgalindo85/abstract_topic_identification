@@ -46,8 +46,8 @@ def main(config: DictConfig):
     print('UMAP + HDSCAN clusters: ', np.unique(clus_umap.labels_, return_counts=True))
 
 
-    model_lda = find_topics(tfidf_matrix, algo='LDA', n_topics=10)
-    model_svd = find_topics(tfidf_matrix, algo='SVD', n_topics=10)
+    model_lda = find_topics(tfidf_matrix, algo='LDA', n_topics=15)
+    model_svd = find_topics(tfidf_matrix, algo='SVD', n_topics=15)
 
     # display topics
     tfidf_feature_names = vectorizer.get_feature_names_out()
