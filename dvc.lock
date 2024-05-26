@@ -43,8 +43,8 @@ stages:
     deps:
     - path: config/main.yaml
       hash: md5
-      md5: cf79a98c6c3fc31927d247b9c94242b9
-      size: 195
+      md5: 46acfcf13ccb5a748a76a8e7c48d95b4
+      size: 481
     - path: data/raw
       hash: md5
       md5: 97165a601381d1aac13bd7c25fc369ba.dir
@@ -52,25 +52,25 @@ stages:
       nfiles: 13300
     - path: src/prepare_data.py
       hash: md5
-      md5: de9677b8c18ffdda492f033fbc26518b
-      size: 3456
+      md5: 8c7f7564469768783165ec443b7a4e35
+      size: 3466
     outs:
     - path: data/processed
       hash: md5
-      md5: eef51ff99b2b57944f7cf435ace00929.dir
-      size: 11237305
+      md5: 4496e37592066e71619305bf6bbd7fd1.dir
+      size: 11212935
       nfiles: 1
   preprocess_data:
     cmd: python src/preprocess_data.py
     deps:
     - path: config/main.yaml
       hash: md5
-      md5: cf79a98c6c3fc31927d247b9c94242b9
-      size: 195
+      md5: 46acfcf13ccb5a748a76a8e7c48d95b4
+      size: 481
     - path: data/processed
       hash: md5
-      md5: eef51ff99b2b57944f7cf435ace00929.dir
-      size: 11237305
+      md5: 4496e37592066e71619305bf6bbd7fd1.dir
+      size: 11212935
       nfiles: 1
     - path: src/preprocess_data.py
       hash: md5
@@ -79,7 +79,7 @@ stages:
     outs:
     - path: data/model_input
       hash: md5
-      md5: 93db76731c3954c8f8b387e2424f02b8.dir
+      md5: 1c864c6129294514bdc8729d403fd59e.dir
       size: 39728
       nfiles: 1
   train_clustering:
@@ -87,20 +87,20 @@ stages:
     deps:
     - path: config/main.yaml
       hash: md5
-      md5: cf79a98c6c3fc31927d247b9c94242b9
-      size: 195
+      md5: 46acfcf13ccb5a748a76a8e7c48d95b4
+      size: 481
     - path: data/model_input
       hash: md5
-      md5: 93db76731c3954c8f8b387e2424f02b8.dir
+      md5: 1c864c6129294514bdc8729d403fd59e.dir
       size: 39728
       nfiles: 1
     - path: src/train_clus.py
       hash: md5
-      md5: 0d9c4be7627d1f69c24ef4fd5df4454d
-      size: 4739
+      md5: a175e77d70ab38857246202c9bb0c082
+      size: 5412
     outs:
     - path: data/output_model
       hash: md5
-      md5: 67ec0e102b0c4ec287d6e2248d184c36.dir
-      size: 39728
-      nfiles: 1
+      md5: 8603ca6d0545f676e1d6051b3a52c944.dir
+      size: 79456
+      nfiles: 2

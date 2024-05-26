@@ -141,7 +141,8 @@ def load_model(config: DictConfig):
     logger = logging.getLogger('load_model')
     logger.info("Loading model")
 
-    model = joblib.load(os.path.join(DIR_PATH, 'models', config.models.clustering[0], 'model.joblib'))
+    model_name = list(config.models.clustering[0].keys())[0]
+    model = joblib.load(os.path.join(DIR_PATH, 'models', model_name, 'model.joblib'))
 
     return model
 

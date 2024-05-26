@@ -19,7 +19,7 @@ nltk.download('wordnet')
 
 DIR_PATH = Path(__file__).resolve().parents[1]
 # include into stopwords characteres that are typically found in xml files
-stopwords = set(stopwords.words('english') + ['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}'] + ['lt', 'br', 'gt', 'fy', 'htl', 'fl', 'ca', 'cl'], ['nsf'])
+stopwords = set(stopwords.words('english') + ['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}'] + ['lt', 'br', 'gt', 'fy', 'htl', 'fl', 'ca', 'cl'] + ['nsf'])
 
 
 @hydra.main(config_path="../config", config_name="main.yaml", version_base=None)

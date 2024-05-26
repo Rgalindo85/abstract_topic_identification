@@ -18,7 +18,7 @@ models:
         params:
           min_cluster_size: 5
           min_samples: 5
-          cluster_selection_epsilon: 0.5
+          cluster_selection_epsilon: 0.3
           metric: euclidean
     - dbscan:
         name: dbscan

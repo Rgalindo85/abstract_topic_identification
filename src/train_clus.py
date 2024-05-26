@@ -24,8 +24,11 @@ def main(config: DictConfig):
     # apply hierarchical clustering
 
     list_models = config.models.clustering
-    for model in list_models:
-        model, labels = apply_hierarchical_clustering(data, method=model)
+    for m in list_models:
+        model_name = list(m.keys())[0]
+
+        logger.info(f"Apply hierarchical clustering with {model_name}")
+        model, labels = apply_hierarchical_clustering(data, model=m, model_name=model_name)
 
         model_path = os.path.join(DIR_PATH, 'models', model_name)
         model_pred_path = os.path.join(DIR_PATH, config.data.model_output.path, model_name)
@@ -58,15 +61,15 @@ def load_data(config: DictConfig) -> dict:
     return data
 
 
-def apply_hierarchical_clustering(X, model=None):
+def apply_hierarchical_clustering(X, model=None, model_name='hdbscan'):
     logger = logging.getLogger('apply_hierarchical_clustering')
 
     if model is None:
         logger.info("No model provided.")
         return
 
-    method = model.name
-    params = model.params
+    method = model_name
+    params = model[model_name].params
 
     if method == 'hdbscan':
         logger.info("Apply HDBSCAN")
@@ -93,11 +96,12 @@ def apply_hierarchical_clustering(X, model=None):
     elif method == 'dbscan':
         from sklearn.cluster import DBSCAN
         clusterer = DBSCAN(eps=0.3, min_samples=10)
-        clusterer.fit(X)
+        labels = clusterer.fit_predict(X)
+
         # plt.scatter(X[:, 0], X[:, 1], c=clusterer.labels_, cmap='viridis', alpha=0.3)
         # plt.show()
 
-        return clusterer
+        return clusterer, labels
     else:
         raise ValueError(f"Method {method} not supported")
 
