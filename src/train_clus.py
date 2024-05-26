@@ -24,8 +24,8 @@ def main(config: DictConfig):
     # apply hierarchical clustering
 
     list_models = config.models.clustering
-    for model_name in list_models:
-        model, labels = apply_hierarchical_clustering(data, method=model_name)
+    for model in list_models:
+        model, labels = apply_hierarchical_clustering(data, method=model)
 
         model_path = os.path.join(DIR_PATH, 'models', model_name)
         model_pred_path = os.path.join(DIR_PATH, config.data.model_output.path, model_name)
@@ -58,13 +58,31 @@ def load_data(config: DictConfig) -> dict:
     return data
 
 
-def apply_hierarchical_clustering(X, method='hdbscan'):
+def apply_hierarchical_clustering(X, model=None):
     logger = logging.getLogger('apply_hierarchical_clustering')
+
+    if model is None:
+        logger.info("No model provided.")
+        return
+
+    method = model.name
+    params = model.params
 
     if method == 'hdbscan':
         logger.info("Apply HDBSCAN")
 
-        clusterer = hdbscan.HDBSCAN(min_cluster_size=10, gen_min_span_tree=True)
+        min_cluster_size = params.min_cluster_size
+        min_samples = params.min_samples
+        cluster_selection_epsilon = params.cluster_selection_epsilon
+        metric = params.metric
+
+        clusterer = hdbscan.HDBSCAN(
+            min_cluster_size=min_cluster_size, 
+            gen_min_span_tree=True, 
+            min_samples=min_samples,
+            cluster_selection_epsilon=cluster_selection_epsilon,
+            metric=metric
+        )
         labels = clusterer.fit_predict(X)
 
         # plt.scatter(X[:, 0], X[:, 1], c=clusterer.labels_, cmap='viridis', alpha=0.3)

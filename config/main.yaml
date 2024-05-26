@@ -13,4 +13,16 @@ data:
 
 models:
   clustering:
-    - hdbscan
+    - hdbscan:
+        name: hdbscan
+        params:
+          min_cluster_size: 5
+          min_samples: 5
+          cluster_selection_epsilon: 0.5
+          metric: euclidean
+    - dbscan:
+        name: dbscan
+        params:
+          eps: 0.5
+          min_samples: 5
+          metric: euclidean
