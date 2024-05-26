@@ -17,13 +17,13 @@ stages:
     outs:
       - data/model_input:
           persist: true
-  train_model:
-    cmd: python src/train.py
-    deps:
-      - data/model_intut
-      # - data/input_model
-      - config/main.yaml
-      - src/train.py
+  # train_model:
+  #   cmd: python src/train.py
+  #   deps:
+  #     - data/model_intut
+  #     # - data/input_model
+  #     - config/main.yaml
+  #     - src/train.py
     # outs:
     #   - data/output_model:
     #      persist: true

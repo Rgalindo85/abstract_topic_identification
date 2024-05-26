@@ -22,6 +22,9 @@ def main(config: DictConfig):
     tree = ET.parse(filename)
     root = tree.getroot()
 
+    for abstract in root.iter('abstract'):
+        print(abstract.text)
+
     # show xml file in the dashboard
     st.write(root)
 
