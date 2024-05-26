@@ -8,6 +8,9 @@ data:
   model_input:
     path: data/model_input
 
+  model_output:
+    path: data/output_model
+
 models:
   clustering:
     - hdbscan

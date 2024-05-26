@@ -27,11 +27,14 @@ def main(config: DictConfig):
     for model_name in list_models:
         model, labels = apply_hierarchical_clustering(data, method=model_name)
 
-        filespath = os.path.join(DIR_PATH, 'models', model_name)
-        os.makedirs(filespath, exist_ok=True)
+        model_path = os.path.join(DIR_PATH, 'models', model_name)
+        model_pred_path = os.path.join(DIR_PATH, config.data.model_output.path, model_name)
 
-        model_file = os.path.join(filespath, 'model.joblib')
-        labels_file = os.path.join(filespath, 'labels.npy')
+        os.makedirs(model_path, exist_ok=True)
+        os.makedirs(model_pred_path, exist_ok=True)
+
+        model_file = os.path.join(model_path, 'model.joblib')
+        labels_file = os.path.join(model_pred_path, 'labels.npy')
 
         # save model
         logger.info(f"Save model to {model_file}")
