@@ -1,7 +1,10 @@
 import os
 import hydra
+import logging
+import joblib
+import hdbscan
+
 import numpy as np
-import matplotlib.pyplot as plt
 
 from omegaconf import DictConfig, OmegaConf
 from pathlib import Path
@@ -13,7 +16,8 @@ DIR_PATH = Path(__file__).resolve().parents[1]
 
 @hydra.main(config_path="../config", config_name="main.yaml", version_base=None)
 def main(config: DictConfig):
-    
+    logger = logging.getLogger('main')
+
     # load data
     data = load_data(config)
 
@@ -26,34 +30,37 @@ def main(config: DictConfig):
         filespath = os.path.join(DIR_PATH, 'models', model_name)
         os.makedirs(filespath, exist_ok=True)
 
-        model_file = os.path.join(filespath, 'model.pkl')
+        model_file = os.path.join(filespath, 'model.joblib')
         labels_file = os.path.join(filespath, 'labels.npy')
 
         # save model
-        model.save(model_file)
-
+        logger.info(f"Save model to {model_file}")
+        joblib.dump(model, model_file)
+        
         # save labels
+        logger.info(f"Save labels to {labels_file}")
         np.save(labels_file, labels)
 
-
+    logger.info("Done!")
 
 def load_data(config: DictConfig) -> dict:
-
+    logger = logging.getLogger('load_data')
+    
     filename = os.path.join(DIR_PATH, config.data.model_input.path, 'data.npy')
-
+    
+    logger.info(f"Load data from {filename}")
+    
     data = np.load(filename)
-    model = apply_hierarchical_clustering(data, method='hdbscan')
-    labels = model.fit_predict(data)
-
-    filepath = os.path.join(DIR_PATH, config.data.model_output.path, 'model.pkl')
 
     return data
 
 
 def apply_hierarchical_clustering(X, method='hdbscan'):
+    logger = logging.getLogger('apply_hierarchical_clustering')
 
     if method == 'hdbscan':
-        import hdbscan
+        logger.info("Apply HDBSCAN")
+
         clusterer = hdbscan.HDBSCAN(min_cluster_size=10, gen_min_span_tree=True)
         labels = clusterer.fit_predict(X)
 
