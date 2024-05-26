@@ -3,17 +3,10 @@ import hydra
 import numpy as np
 import matplotlib.pyplot as plt
 
-import pyLDAvis
-
-
 from omegaconf import DictConfig, OmegaConf
 from pathlib import Path
 
-import pyLDAvis.lda_model
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.cluster import DBSCAN
-from sklearn.decomposition import TruncatedSVD
 
 DIR_PATH = Path(__file__).resolve().parents[1]
 
@@ -22,67 +15,59 @@ DIR_PATH = Path(__file__).resolve().parents[1]
 def main(config: DictConfig):
     
     # load data
-    filename = os.path.join(DIR_PATH, config.data.processed.path, 'data.json')
-    print(f"Load data from {filename}")
+    data = load_data(config)
 
-    # use omegaconf to load file
-    dict_data = OmegaConf.load(filename)
+    # apply hierarchical clustering
 
-    # vectorization
-    vectorizer, tfidf_matrix = vectorization(dict_data)
-    
-    # dim reduction visualization
-    X_tsne = show_dim_reduction(tfidf_matrix, vectorizer, method='tnse')
-    X_pca = show_dim_reduction(tfidf_matrix, vectorizer, method='pca')
-    X_umap = show_dim_reduction(tfidf_matrix, vectorizer, method='umap')
+    list_models = config.models.clustering
+    for model_name in list_models:
+        model, labels = apply_hierarchical_clustering(data, method=model_name)
 
-    # Apply Hierarchical Clustering - HDBSCAN
-    clus_tsne = apply_hierarchical_clustering(X_tsne, method='hdbscan')
-    clus_pca = apply_hierarchical_clustering(X_pca, method='hdbscan')
-    clus_umap = apply_hierarchical_clustering(X_umap, method='hdbscan')
+        filespath = os.path.join(DIR_PATH, 'models', model_name)
+        os.makedirs(filespath, exist_ok=True)
 
-    print('TSNE + HDSCAN clusters: ', np.unique(clus_tsne.labels_, return_counts=True))
-    print('PCA + HDSCAN clusters: ', np.unique(clus_pca.labels_, return_counts=True))
-    print('UMAP + HDSCAN clusters: ', np.unique(clus_umap.labels_, return_counts=True))
+        model_file = os.path.join(filespath, 'model.pkl')
+        labels_file = os.path.join(filespath, 'labels.npy')
+
+        # save model
+        model.save(model_file)
+
+        # save labels
+        np.save(labels_file, labels)
 
 
-    model_lda = find_topics(tfidf_matrix, algo='LDA', n_topics=15)
-    model_svd = find_topics(tfidf_matrix, algo='SVD', n_topics=15)
 
-    # display topics
-    tfidf_feature_names = vectorizer.get_feature_names_out()
-    print("\nTopics from LDA:")
-    display_topics(model_lda, tfidf_feature_names, 10)
-    print("\nTopics from TruncatedSVD:")
-    display_topics(model_svd, tfidf_feature_names, 10)
+def load_data(config: DictConfig) -> dict:
 
-    # evaluate model
+    filename = os.path.join(DIR_PATH, config.data.model_input.path, 'data.npy')
 
-    
+    data = np.load(filename)
+    model = apply_hierarchical_clustering(data, method='hdbscan')
+    labels = model.fit_predict(data)
 
-    # evaluate model
-    # pyLDAvis.enable_notebook()
-    # panel = pyLDAvis.lda_model.prepare(lda, tfidf_matrix, vectorizer, mds='tsne')
-    # pyLDAvis.save_html(panel, os.path.join('reports', 'HTML','lda.html'))
-    # pyLDAvis.display(panel)
+    filepath = os.path.join(DIR_PATH, config.data.model_output.path, 'model.pkl')
+
+    return data
+
 
 def apply_hierarchical_clustering(X, method='hdbscan'):
 
     if method == 'hdbscan':
         import hdbscan
         clusterer = hdbscan.HDBSCAN(min_cluster_size=10, gen_min_span_tree=True)
-        clusterer.fit(X)
-        plt.scatter(X[:, 0], X[:, 1], c=clusterer.labels_, cmap='viridis', alpha=0.3)
-        plt.legend()
-        plt.show()
+        labels = clusterer.fit_predict(X)
 
-        return clusterer
+        # plt.scatter(X[:, 0], X[:, 1], c=clusterer.labels_, cmap='viridis', alpha=0.3)
+        # plt.legend()
+        # plt.show()
+
+        return clusterer, labels
     elif method == 'dbscan':
         from sklearn.cluster import DBSCAN
         clusterer = DBSCAN(eps=0.3, min_samples=10)
         clusterer.fit(X)
-        plt.scatter(X[:, 0], X[:, 1], c=clusterer.labels_, cmap='viridis', alpha=0.3)
-        plt.show()
+        # plt.scatter(X[:, 0], X[:, 1], c=clusterer.labels_, cmap='viridis', alpha=0.3)
+        # plt.show()
 
         return clusterer
     else:
