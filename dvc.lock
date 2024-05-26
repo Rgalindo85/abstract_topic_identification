@@ -43,8 +43,8 @@ stages:
     deps:
     - path: config/main.yaml
       hash: md5
-      md5: 4afde06e035dbbcd96fce75b151d1d73
-      size: 150
+      md5: cf79a98c6c3fc31927d247b9c94242b9
+      size: 195
     - path: data/raw
       hash: md5
       md5: 97165a601381d1aac13bd7c25fc369ba.dir
@@ -65,8 +65,8 @@ stages:
     deps:
     - path: config/main.yaml
       hash: md5
-      md5: 4afde06e035dbbcd96fce75b151d1d73
-      size: 150
+      md5: cf79a98c6c3fc31927d247b9c94242b9
+      size: 195
     - path: data/processed
       hash: md5
       md5: eef51ff99b2b57944f7cf435ace00929.dir
@@ -79,6 +79,28 @@ stages:
     outs:
     - path: data/model_input
       hash: md5
-      md5: 0adef7aded8b632afbd61b0f801593e9.dir
+      md5: 93db76731c3954c8f8b387e2424f02b8.dir
+      size: 39728
+      nfiles: 1
+  train_clustering:
+    cmd: python src/train_clus.py
+    deps:
+    - path: config/main.yaml
+      hash: md5
+      md5: cf79a98c6c3fc31927d247b9c94242b9
+      size: 195
+    - path: data/model_input
+      hash: md5
+      md5: 93db76731c3954c8f8b387e2424f02b8.dir
+      size: 39728
+      nfiles: 1
+    - path: src/train_clus.py
+      hash: md5
+      md5: 0d9c4be7627d1f69c24ef4fd5df4454d
+      size: 4739
+    outs:
+    - path: data/output_model
+      hash: md5
+      md5: 67ec0e102b0c4ec287d6e2248d184c36.dir
       size: 39728
       nfiles: 1
