@@ -20,7 +20,10 @@ def main(config: DictConfig):
     dict_data = load_data(config)
     processed_data = preprocess_data(dict_data)
 
-    output_file = os.makedirs(os.path.join(DIR_PATH, config.data.model_input.path), exist_ok=True)
+    # save processed data
+    output_file = os.path.join(DIR_PATH, config.data.model_input.path)
+    os.makedirs(os.path.join(DIR_PATH, config.data.model_input.path), exist_ok=True)
+    print(output_file)
     np.save(os.path.join(output_file, 'data.npy'), processed_data)
 
     logger.info("Done!")

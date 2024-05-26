@@ -38,3 +38,47 @@ stages:
       hash: md5
       md5: 1e141aaed26ce7cfbc42110ffb4a5f78
       size: 5366
+  prepare_data:
+    cmd: python src/prepare_data.py
+    deps:
+    - path: config/main.yaml
+      hash: md5
+      md5: aae65070d813b811b53c080a3ea824d0
+      size: 114
+    - path: data/raw
+      hash: md5
+      md5: 97165a601381d1aac13bd7c25fc369ba.dir
+      size: 121881813
+      nfiles: 13300
+    - path: src/prepare_data.py
+      hash: md5
+      md5: de9677b8c18ffdda492f033fbc26518b
+      size: 3456
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: eef51ff99b2b57944f7cf435ace00929.dir
+      size: 11237305
+      nfiles: 1
+  preprocess_data:
+    cmd: python src/preprocess_data.py
+    deps:
+    - path: config/main.yaml
+      hash: md5
+      md5: aae65070d813b811b53c080a3ea824d0
+      size: 114
+    - path: data/processed
+      hash: md5
+      md5: eef51ff99b2b57944f7cf435ace00929.dir
+      size: 11237305
+      nfiles: 1
+    - path: src/preprocess_data.py
+      hash: md5
+      md5: 9dc4b9bfde5691e2de3b5ae237e4cc72
+      size: 1571
+    outs:
+    - path: data/model_input
+      hash: md5
+      md5: f9a35156b0a6f75f3c86c4ab52af4ae2.dir
+      size: 39728
+      nfiles: 1
