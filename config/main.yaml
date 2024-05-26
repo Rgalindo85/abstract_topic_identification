@@ -5,5 +5,5 @@ data:
   processed:
     path: data/processed
 
-  input_model:
-    path: data/input_model
+  model_input:
+    path: data/model_input
