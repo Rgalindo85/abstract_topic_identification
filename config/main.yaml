@@ -5,5 +5,24 @@ data:
   processed:
     path: data/processed
 
-  input_model:
-    path: data/input_model
+  model_input:
+    path: data/model_input
+
+  model_output:
+    path: data/output_model
+
+models:
+  clustering:
+    - hdbscan:
+        name: hdbscan
+        params:
+          min_cluster_size: 5
+          min_samples: 5
+          cluster_selection_epsilon: 0.3
+          metric: euclidean
+    - dbscan:
+        name: dbscan
+        params:
+          eps: 0.5
+          min_samples: 5
+          metric: euclidean

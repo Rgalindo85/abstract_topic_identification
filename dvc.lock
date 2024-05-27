@@ -14,13 +14,13 @@ stages:
       nfiles: 13300
     - path: src/prepare_data.py
       hash: md5
-      md5: fab61cd08fb4d580a55be5466e65adb4
-      size: 3425
+      md5: de9677b8c18ffdda492f033fbc26518b
+      size: 3456
     outs:
     - path: data/processed
       hash: md5
-      md5: d766ef2fc4043d42628bfae6385d35f9.dir
-      size: 2261637
+      md5: eef51ff99b2b57944f7cf435ace00929.dir
+      size: 11237305
       nfiles: 1
   train_model:
     cmd: python src/train.py
@@ -31,10 +31,76 @@ stages:
       size: 114
     - path: data/processed
       hash: md5
-      md5: d766ef2fc4043d42628bfae6385d35f9.dir
-      size: 2261637
+      md5: eef51ff99b2b57944f7cf435ace00929.dir
+      size: 11237305
       nfiles: 1
     - path: src/train.py
       hash: md5
-      md5: 3593aabb0e5ee9150e341228d4723b15
-      size: 2281
+      md5: 1e141aaed26ce7cfbc42110ffb4a5f78
+      size: 5366
+  prepare_data:
+    cmd: python src/prepare_data.py
+    deps:
+    - path: config/main.yaml
+      hash: md5
+      md5: 46acfcf13ccb5a748a76a8e7c48d95b4
+      size: 481
+    - path: data/raw
+      hash: md5
+      md5: 97165a601381d1aac13bd7c25fc369ba.dir
+      size: 121881813
+      nfiles: 13300
+    - path: src/prepare_data.py
+      hash: md5
+      md5: 8c7f7564469768783165ec443b7a4e35
+      size: 3466
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: 4496e37592066e71619305bf6bbd7fd1.dir
+      size: 11212935
+      nfiles: 1
+  preprocess_data:
+    cmd: python src/preprocess_data.py
+    deps:
+    - path: config/main.yaml
+      hash: md5
+      md5: 46acfcf13ccb5a748a76a8e7c48d95b4
+      size: 481
+    - path: data/processed
+      hash: md5
+      md5: 4496e37592066e71619305bf6bbd7fd1.dir
+      size: 11212935
+      nfiles: 1
+    - path: src/preprocess_data.py
+      hash: md5
+      md5: 9dc4b9bfde5691e2de3b5ae237e4cc72
+      size: 1571
+    outs:
+    - path: data/model_input
+      hash: md5
+      md5: 1c864c6129294514bdc8729d403fd59e.dir
+      size: 39728
+      nfiles: 1
+  train_clustering:
+    cmd: python src/train_clus.py
+    deps:
+    - path: config/main.yaml
+      hash: md5
+      md5: 46acfcf13ccb5a748a76a8e7c48d95b4
+      size: 481
+    - path: data/model_input
+      hash: md5
+      md5: 1c864c6129294514bdc8729d403fd59e.dir
+      size: 39728
+      nfiles: 1
+    - path: src/train_clus.py
+      hash: md5
+      md5: a175e77d70ab38857246202c9bb0c082
+      size: 5412
+    outs:
+    - path: data/output_model
+      hash: md5
+      md5: 8603ca6d0545f676e1d6051b3a52c944.dir
+      size: 79456
+      nfiles: 2

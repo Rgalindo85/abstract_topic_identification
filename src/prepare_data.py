@@ -19,7 +19,7 @@ nltk.download('wordnet')
 
 DIR_PATH = Path(__file__).resolve().parents[1]
 # include into stopwords characteres that are typically found in xml files
-stopwords = set(stopwords.words('english') + ['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}'] + ['lt', 'br', 'gt'])
+stopwords = set(stopwords.words('english') + ['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}'] + ['lt', 'br', 'gt', 'fy', 'htl', 'fl', 'ca', 'cl'] + ['nsf'])
 
 
 @hydra.main(config_path="../config", config_name="main.yaml", version_base=None)
@@ -88,7 +88,7 @@ def get_data(config: DictConfig) -> dict:
     
     # Get abstracts
     dict_data = {}
-    for file in tqdm(list_of_files[:1000]):
+    for file in tqdm(list_of_files[:5000]):
         try:
             abstract = get_abstract(file)
             paper = file.split('/')[-1].split('.')[0]

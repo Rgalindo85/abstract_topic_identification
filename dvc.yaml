@@ -1,5 +1,5 @@
 stages:
-  process_data:
+  prepare_data:
     cmd: python src/prepare_data.py
     deps:
       - data/raw
@@ -8,13 +8,22 @@ stages:
     outs:
       - data/processed:
           persist: true
-  train_model:
-    cmd: python src/train.py
+  preprocess_data:
+    cmd: python src/preprocess_data.py
     deps:
       - data/processed
+      - config/main.yaml
+      - src/preprocess_data.py
+    outs:
+      - data/model_input:
+          persist: true
+  train_clustering:
+    cmd: python src/train_clus.py
+    deps:
+      - data/model_input
       # - data/input_model
       - config/main.yaml
-      - src/train.py
-    # outs:
-    #   - data/output_model:
-    #      persist: true
+      - src/train_clus.py
+    outs:
+      - data/output_model:
+         persist: true
